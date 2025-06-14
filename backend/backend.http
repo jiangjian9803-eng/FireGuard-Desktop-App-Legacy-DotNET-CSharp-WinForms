@@ -1,0 +1,19 @@
+@backend_HostAddress = http://localhost:5193
+
+GET {{backend_HostAddress}}/health
+Accept: application/json
+
+###
+
+GET {{backend_HostAddress}}/version
+Accept: application/json
+
+###
+
+GET {{backend_HostAddress}}/kernel
+Accept: application/json
+
+###
+
+GET {{backend_HostAddress}}/ndvi
+Accept: application/json
