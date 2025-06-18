@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildfireAgents", "WildfireAgents\WildfireAgents.csproj", "{EBCC6A47-FA3C-4F56-B908-0B0039885E17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSimulator", "IoTSimulator\IoTSimulator.csproj", "{A79F70C5-BF6C-445A-8FE3-03E6179CBDA5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EBCC6A47-FA3C-4F56-B908-0B0039885E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBCC6A47-FA3C-4F56-B908-0B0039885E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBCC6A47-FA3C-4F56-B908-0B0039885E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBCC6A47-FA3C-4F56-B908-0B0039885E17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A79F70C5-BF6C-445A-8FE3-03E6179CBDA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A79F70C5-BF6C-445A-8FE3-03E6179CBDA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A79F70C5-BF6C-445A-8FE3-03E6179CBDA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A79F70C5-BF6C-445A-8FE3-03E6179CBDA5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {29B1F2E8-577E-44CF-9B8F-829312262234}
+	EndGlobalSection
+EndGlobal
