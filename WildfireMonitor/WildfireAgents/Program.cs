@@ -2,11 +2,12 @@ using Azure.AI.OpenAI;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WildfireAgents.Services;
+using Azure.AI.Translation.Text;
+
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -32,6 +33,8 @@ var serviceBusConnectionString = await keyVaultService.GetSecretAsync("ServiceBu
 var openAiServiceEndpoint = await keyVaultService.GetSecretAsync("OpenAIUrl");
 var openAIServiceKey = await keyVaultService.GetSecretAsync("OpenAIKey");
 
+var translatorServiceKey = await keyVaultService.GetSecretAsync("TranslatorServiceKey");
+
 builder.Services
     .AddSingleton(new CosmosClient(cosmosDbConnectionString))
     .AddSingleton<CosmosDbService>()
@@ -41,7 +44,11 @@ builder.Services
         new Uri(openAiServiceEndpoint),
         new AzureKeyCredential(openAIServiceKey)))
     .AddSingleton<OpenAIService>()
-    .AddSingleton<AzureMapsService>();
+    .AddSingleton<AzureMapsService>()
+    .AddSingleton(new TextTranslationClient(
+        new AzureKeyCredential(translatorServiceKey), 
+        "eastus"))
+    .AddSingleton<TranslatorService>();
 
 
 builder.Build().Run();
