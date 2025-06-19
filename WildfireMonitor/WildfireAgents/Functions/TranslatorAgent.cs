@@ -1,11 +1,7 @@
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using OpenAI.Chat;
-using OpenAI;
 using WildfireAgents.Models;
 using WildfireAgents.Services;
 using Microsoft.Azure.Cosmos;

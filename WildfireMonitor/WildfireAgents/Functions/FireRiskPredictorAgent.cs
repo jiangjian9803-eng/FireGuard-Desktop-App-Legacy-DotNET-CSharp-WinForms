@@ -1,9 +1,5 @@
-using System;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
