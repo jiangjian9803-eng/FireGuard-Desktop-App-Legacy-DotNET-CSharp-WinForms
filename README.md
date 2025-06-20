@@ -53,7 +53,6 @@ Sensitive data protected via KeyVault and CosmosDb.
 Access is controlled and monitored to prevent misuse.
 
 - **Fairness & Non-Discrimination**
-Bias-free models for diverse populations and regions.
 Automatic translations ensure equal access to information.
 
 - **Accountability**
