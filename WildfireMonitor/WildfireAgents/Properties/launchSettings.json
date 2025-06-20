@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "WildfireAgents": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7000",
+      "environmentVariables": {
+        "KeyVaultUrl": "https://kv-agro-ai.vault.azure.net/"
+      }
+    }
+  }
+}
