@@ -69,5 +69,14 @@ Designed to withstand AI or infrastructure failures.
 - **External Integrations**: Leverages Azure services (Maps, Cosmos DB, Key Vault, Service Bus) and OpenAI for advanced functionality.
 - **Communication**: Asynchronous messaging via Service Bus ensures efficient agent coordination.
 
+## Core Features
+- Modular Architecture: Specialized agents for data collection, prediction, simulation, assessment, response, 
+summarization, and translation ensure scalability.
+- Real-Time Monitoring: Continuous sensor and API data ingestion for near real-time updates.
+- Risk Prediction, Fire Spread Simulation and Impact analysis for infrastructure and ecosystems.
+- Natural Language Summarization: AI-generated 
+summaries for non-technical stakeholders.
+- Multilingual Support.
+
 ## Purpose
 WildfireAgents aims to provide a comprehensive solution for wildfire management by combining real-time data collection, predictive analytics, impact assessment, and actionable response strategies. Its modular architecture, structured data models, and external integrations make it adaptable to various environmental and operational contexts, supporting stakeholders in mitigating wildfire risks effectively.
