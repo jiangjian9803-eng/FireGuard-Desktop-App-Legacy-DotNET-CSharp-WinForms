@@ -1,5 +1,32 @@
 # FireGuard360 Project Description
 
+## Legacy WinForms Edition
+
+The solution now includes `FireGuard360.Legacy.WinForms`, a Windows desktop edition that demonstrates how the same wildfire-management business workflow can operate in a traditional legacy application. The original Azure Functions implementation remains unchanged for architectural comparison.
+
+The desktop workflow preserves these business stages:
+
+1. Validate and collect environmental sensor readings.
+2. Calculate a wildfire risk score and severity level.
+3. Project a geographic fire-spread path.
+4. identify affected regional infrastructure.
+5. Recommend monitoring, notification, resource, and evacuation actions.
+6. Generate an executive incident summary.
+7. Prepare multilingual report records.
+
+In the legacy edition, in-process service calls replace Azure Service Bus triggers and local JSON records replace Cosmos DB. This makes the application suitable for disconnected Windows workstations while retaining the original domain workflow and models.
+
+### Run the legacy desktop application
+
+Requirements: Windows 10/11, Visual Studio 2022, and the .NET 8 SDK.
+
+```powershell
+cd WildfireMonitor
+dotnet run --project FireGuard360.Legacy.WinForms
+```
+
+The application stores records under `%LOCALAPPDATA%\FireGuard360Legacy\wildfire-records.json` and can export a text-based incident report from the operations screen.
+
 ## Overview
 FireGuard360 is a modular, agent-based application developed in C# (.NET 8) designed for monitoring, predicting, and responding to wildfires. It leverages a distributed architecture where specialized agents handle distinct tasks within the wildfire data processing pipeline. The system integrates with external services to enhance its capabilities, ensuring scalability, security, and real-time processing.
 
