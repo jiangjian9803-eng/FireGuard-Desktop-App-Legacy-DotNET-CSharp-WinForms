@@ -1,0 +1,45 @@
+name: Build Legacy WinForms
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "WildfireMonitor/FireGuard360.Legacy.WinForms/**"
+      - "WildfireMonitor/WildfireMonitor.sln"
+      - ".github/workflows/build-legacy-winforms.yml"
+  pull_request:
+    paths:
+      - "WildfireMonitor/FireGuard360.Legacy.WinForms/**"
+      - "WildfireMonitor/WildfireMonitor.sln"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: WildfireMonitor
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore WinForms project
+        run: dotnet restore FireGuard360.Legacy.WinForms/FireGuard360.Legacy.WinForms.csproj
+
+      - name: Build WinForms project
+        run: dotnet build FireGuard360.Legacy.WinForms/FireGuard360.Legacy.WinForms.csproj --configuration Release --no-restore
+
+      - name: Publish Windows executable
+        run: dotnet publish FireGuard360.Legacy.WinForms/FireGuard360.Legacy.WinForms.csproj --configuration Release --runtime win-x64 --self-contained false --output artifacts/FireGuard360.Legacy.WinForms
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: FireGuard360-Legacy-WinForms-win-x64
+          path: WildfireMonitor/artifacts/FireGuard360.Legacy.WinForms
