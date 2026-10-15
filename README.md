@@ -27,6 +27,17 @@ dotnet run --project FireGuard360.Legacy.WinForms
 
 The application stores records under `%LOCALAPPDATA%\FireGuard360Legacy\wildfire-records.json` and can export a text-based incident report from the operations screen.
 
+### Desktop operations modules
+
+- **Dashboard:** risk, severity, projected spread, population exposure, response briefing, and a schematic situation map.
+- **Incident Analysis:** validated environmental observations and an explainable seven-stage assessment.
+- **Situation Map:** wind-driven spread direction, estimated distance, and critical regional assets.
+- **Incident History:** locally persisted assessments with a stage-by-stage audit trail.
+- **Resource Dispatch:** calculated crew, engine, and aircraft requirements with explicit operator oversight.
+- **Reports and Logs:** text-based incident reports and timestamped workflow events.
+
+The risk and resource calculations are transparent demonstration rules for software workflow testing. They are not certified wildfire science models and must not be used for real emergency decisions.
+
 ## Overview
 FireGuard360 is a modular, agent-based application developed in C# (.NET 8) designed for monitoring, predicting, and responding to wildfires. It leverages a distributed architecture where specialized agents handle distinct tasks within the wildfire data processing pipeline. The system integrates with external services to enhance its capabilities, ensuring scalability, security, and real-time processing.
 

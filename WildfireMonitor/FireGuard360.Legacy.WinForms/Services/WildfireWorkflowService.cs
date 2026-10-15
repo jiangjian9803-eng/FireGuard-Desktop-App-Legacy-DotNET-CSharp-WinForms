@@ -5,12 +5,14 @@ namespace FireGuard360.Legacy.WinForms.Services;
 
 public sealed class WildfireWorkflowService
 {
-    private static readonly IReadOnlyDictionary<string, string> Infrastructure =
-        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private sealed record RegionProfile(string Infrastructure, int Population, double Vulnerability);
+
+    private static readonly IReadOnlyDictionary<string, RegionProfile> Regions =
+        new Dictionary<string, RegionProfile>(StringComparer.OrdinalIgnoreCase)
         {
-            ["region-001"] = "Hospital, Power Plant",
-            ["region-002"] = "School, Highway",
-            ["region-003"] = "Farm, Water Reservoir"
+            ["region-001"] = new("Hospital, Power Plant", 2400, 1.20),
+            ["region-002"] = new("School, Highway", 1250, 1.05),
+            ["region-003"] = new("Farm, Water Reservoir", 680, 0.90)
         };
 
     private readonly LocalWildfireRepository _repository;
@@ -19,26 +21,27 @@ public sealed class WildfireWorkflowService
 
     public WorkflowResult Execute(SensorData sensor, Action<string>? log = null)
     {
+        var audit = new List<AuditEvent>();
         ValidateSensorData(sensor);
-        log?.Invoke("1/7 DataCollector: sensor reading validated.");
+        Record(audit, log, "Data Collection", "Sensor reading validated and normalized.");
 
         var risk = PredictRisk(sensor);
-        log?.Invoke($"2/7 FireRiskPredictor: {risk.RiskScore:F1}% ({risk.RiskLevel}).");
+        Record(audit, log, "Risk Prediction", $"Risk {risk.RiskScore:F1}% ({risk.RiskLevel}); {risk.Explanation}");
 
         var spread = SimulateSpread(sensor, risk);
-        log?.Invoke("3/7 FireSpreadSimulator: projected path generated.");
+        Record(audit, log, "Spread Simulation", $"Projected {spread.EstimatedDistanceKm:F1} km toward {spread.Direction}.");
 
-        var impact = AssessImpact(spread);
-        log?.Invoke("4/7 ImpactAssessment: affected infrastructure identified.");
+        var impact = AssessImpact(spread, risk);
+        Record(audit, log, "Impact Assessment", $"Estimated population at risk: {impact.PopulationAtRisk:N0}; assets: {impact.CriticalAssets}.");
 
         var response = AdviseResponse(risk, impact);
-        log?.Invoke("5/7 ResponseAdvisor: response actions generated.");
+        Record(audit, log, "Response Planning", $"Priority {response.Priority}; resources calculated.");
 
         var summary = Summarize(sensor, risk, impact, response);
-        log?.Invoke("6/7 Summarizer: incident briefing generated.");
+        Record(audit, log, "Briefing", "Executive incident summary generated.");
 
         var translations = Translate(summary);
-        log?.Invoke("7/7 Translator: multilingual report placeholders generated.");
+        Record(audit, log, "Translation", "French, Spanish, and Portuguese review records prepared.");
 
         var result = new WorkflowResult
         {
@@ -48,7 +51,8 @@ public sealed class WildfireWorkflowService
             Impact = impact,
             Response = response,
             Summary = summary,
-            Translations = translations
+            Translations = translations,
+            AuditTrail = audit
         };
 
         _repository.Save(result);
@@ -68,46 +72,65 @@ public sealed class WildfireWorkflowService
             throw new ArgumentOutOfRangeException(nameof(sensor.Location.Latitude));
         if (sensor.Location.Longitude is < -180 or > 180)
             throw new ArgumentOutOfRangeException(nameof(sensor.Location.Longitude));
+        if (sensor.WindDirection is < 0 or > 359)
+            throw new ArgumentOutOfRangeException(nameof(sensor.WindDirection), "Wind direction must be between 0 and 359 degrees.");
+        if (sensor.FuelDryness is < 0 or > 100)
+            throw new ArgumentOutOfRangeException(nameof(sensor.FuelDryness), "Fuel dryness must be between 0 and 100%.");
     }
 
     private static RiskData PredictRisk(SensorData sensor)
     {
         // Deterministic desktop replacement for the original demo's random/OpenAI score.
-        var temperatureFactor = Math.Clamp((sensor.Temperature - 10) / 35.0, 0, 1) * 40;
-        var drynessFactor = Math.Clamp((100 - sensor.Humidity) / 100.0, 0, 1) * 35;
-        var windFactor = Math.Clamp(sensor.WindSpeed / 60.0, 0, 1) * 25;
-        var score = Math.Round(Math.Clamp(temperatureFactor + drynessFactor + windFactor, 0, 100), 1);
+        var temperatureFactor = Math.Clamp((sensor.Temperature - 10) / 35.0, 0, 1) * 30;
+        var drynessFactor = Math.Clamp((100 - sensor.Humidity) / 100.0, 0, 1) * 25;
+        var windFactor = Math.Clamp(sensor.WindSpeed / 60.0, 0, 1) * 20;
+        var fuelFactor = Math.Clamp(sensor.FuelDryness / 100.0, 0, 1) * 25;
+        var score = Math.Round(Math.Clamp(temperatureFactor + drynessFactor + windFactor + fuelFactor, 0, 100), 1);
 
         return new RiskData
         {
             RegionId = sensor.RegionId,
             RiskScore = score,
-            RiskLevel = score switch { >= 75 => "Extreme", >= 55 => "High", >= 30 => "Moderate", _ => "Low" }
+            RiskLevel = score switch { >= 75 => "Extreme", >= 55 => "High", >= 30 => "Moderate", _ => "Low" },
+            TemperatureContribution = Math.Round(temperatureFactor, 1),
+            DrynessContribution = Math.Round(drynessFactor, 1),
+            WindContribution = Math.Round(windFactor, 1),
+            FuelContribution = Math.Round(fuelFactor, 1),
+            Explanation = $"temperature +{temperatureFactor:F1}, humidity +{drynessFactor:F1}, " +
+                          $"wind +{windFactor:F1}, fuel +{fuelFactor:F1}"
         };
     }
 
     private static SpreadData SimulateSpread(SensorData sensor, RiskData risk)
     {
-        var distance = 0.005 + risk.RiskScore / 10_000;
-        var latitude2 = sensor.Location.Latitude + distance;
-        var longitude2 = sensor.Location.Longitude + distance * Math.Max(sensor.WindSpeed / 20, 0.5);
+        var estimatedDistance = Math.Round(0.5 + risk.RiskScore / 18 + sensor.WindSpeed / 22, 1);
+        var radians = sensor.WindDirection * Math.PI / 180;
+        var latitude2 = sensor.Location.Latitude + Math.Cos(radians) * estimatedDistance / 111.0;
+        var longitudeScale = Math.Max(Math.Cos(sensor.Location.Latitude * Math.PI / 180), 0.2);
+        var longitude2 = sensor.Location.Longitude + Math.Sin(radians) * estimatedDistance / (111.0 * longitudeScale);
         return new SpreadData
         {
             RegionId = sensor.RegionId,
             SpreadPath = $"POINT({sensor.Location.Latitude:F5} {sensor.Location.Longitude:F5})," +
-                         $"POINT({latitude2:F5} {longitude2:F5})"
+                         $"POINT({latitude2:F5} {longitude2:F5})",
+            Direction = ToCompassDirection(sensor.WindDirection),
+            EstimatedDistanceKm = estimatedDistance
         };
     }
 
-    private static ImpactData AssessImpact(SpreadData spread)
+    private static ImpactData AssessImpact(SpreadData spread, RiskData risk)
     {
-        var infrastructure = Infrastructure.TryGetValue(spread.RegionId, out var value)
+        var profile = Regions.TryGetValue(spread.RegionId, out var value)
             ? value
-            : "Unknown Infrastructure";
+            : new RegionProfile("Unknown Infrastructure", 300, 1.0);
+        var exposureRatio = Math.Clamp((risk.RiskScore - 20) / 80.0, 0.05, 1.0);
+        var population = (int)Math.Round(profile.Population * exposureRatio * profile.Vulnerability);
         return new ImpactData
         {
             RegionId = spread.RegionId,
-            ImpactedAreas = $"SpreadPath={spread.SpreadPath} | Affected={infrastructure}"
+            ImpactedAreas = $"Projected corridor {spread.Direction}, {spread.EstimatedDistanceKm:F1} km",
+            PopulationAtRisk = population,
+            CriticalAssets = profile.Infrastructure
         };
     }
 
@@ -123,7 +146,11 @@ public sealed class WildfireWorkflowService
         return new ResponseData
         {
             RegionId = risk.RegionId,
-            Recommendations = $"{action} Review affected assets: {impact.ImpactedAreas}."
+            Priority = risk.RiskLevel switch { "Extreme" => "P1 - Immediate", "High" => "P2 - Urgent", "Moderate" => "P3 - Elevated", _ => "P4 - Routine" },
+            RequiredCrews = risk.RiskLevel switch { "Extreme" => 8, "High" => 5, "Moderate" => 3, _ => 1 },
+            RequiredEngines = risk.RiskLevel switch { "Extreme" => 6, "High" => 4, "Moderate" => 2, _ => 1 },
+            RequiredAircraft = risk.RiskLevel switch { "Extreme" => 3, "High" => 2, "Moderate" => 1, _ => 0 },
+            Recommendations = $"{action} Protect {impact.CriticalAssets}; estimated population at risk: {impact.PopulationAtRisk:N0}."
         };
     }
 
@@ -133,7 +160,8 @@ public sealed class WildfireWorkflowService
         RegionId = sensor.RegionId,
         Summary = $"{sensor.RegionId}: wildfire risk is {risk.RiskLevel} ({risk.RiskScore:F1}%). " +
                   $"Conditions: {sensor.Temperature:F1}°C, {sensor.Humidity:F1}% humidity, " +
-                  $"{sensor.WindSpeed:F1} km/h wind. {impact.ImpactedAreas}. {response.Recommendations}"
+                  $"{sensor.WindSpeed:F1} km/h wind, {sensor.FuelDryness:F0}% fuel dryness. " +
+                  $"{impact.ImpactedAreas}; affected assets: {impact.CriticalAssets}. {response.Recommendations}"
     };
 
     private static IReadOnlyList<TranslationData> Translate(SummaryData summary)
@@ -147,5 +175,17 @@ public sealed class WildfireWorkflowService
                 TranslatedSummary = $"[{language.ToUpperInvariant()} translation pending operator review] {summary.Summary}"
             })
             .ToList();
+    }
+
+    private static void Record(List<AuditEvent> audit, Action<string>? log, string stage, string detail)
+    {
+        audit.Add(new AuditEvent { Stage = stage, Detail = detail });
+        log?.Invoke($"{stage}: {detail}");
+    }
+
+    private static string ToCompassDirection(int degrees)
+    {
+        string[] directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        return directions[(int)Math.Round(degrees / 45.0, MidpointRounding.AwayFromZero) % 8];
     }
 }
