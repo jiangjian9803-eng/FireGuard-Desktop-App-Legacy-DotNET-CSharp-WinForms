@@ -6,5 +6,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>FireGuard.Desktop.App.Legacy</AssemblyName>
+    <Product>FireGuard Desktop App (Legacy .NET + C# + WinForms)</Product>
+    <Description>Legacy wildfire operations desktop application built with C#, .NET 8, and WinForms.</Description>
   </PropertyGroup>
 </Project>

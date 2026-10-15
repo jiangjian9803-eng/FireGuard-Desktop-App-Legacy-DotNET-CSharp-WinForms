@@ -1,4 +1,6 @@
-# FireGuard360 Project Description
+# FireGuard Desktop App (Legacy .NET + C# + WinForms)
+
+This repository contains a legacy Windows desktop edition of the FireGuard wildfire-management workflow, implemented with C#, .NET 8, and Windows Forms. The original Azure Functions hackathon implementation is retained for architecture and migration comparison.
 
 ## Legacy WinForms Edition
 

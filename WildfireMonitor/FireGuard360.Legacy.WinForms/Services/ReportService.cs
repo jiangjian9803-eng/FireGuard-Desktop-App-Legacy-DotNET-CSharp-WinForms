@@ -8,7 +8,7 @@ public static class ReportService
     public static void ExportText(WorkflowResult result, string path)
     {
         var report = new StringBuilder()
-            .AppendLine("FIREGUARD360 INCIDENT REPORT")
+            .AppendLine("FIREGUARD DESKTOP APP — INCIDENT REPORT")
             .AppendLine($"Generated: {DateTime.Now:G}")
             .AppendLine($"Region: {result.Sensor.RegionId}")
             .AppendLine($"Coordinates: {result.Sensor.Location.Latitude}, {result.Sensor.Location.Longitude}")

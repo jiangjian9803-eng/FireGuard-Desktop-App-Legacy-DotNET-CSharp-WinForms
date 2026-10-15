@@ -56,7 +56,7 @@ public sealed class MainForm : Form
     {
         _repository = new LocalWildfireRepository();
         _workflow = new WildfireWorkflowService(_repository);
-        Text = "FireGuard360 | Wildfire Operations Management";
+        Text = "FireGuard Desktop App | Legacy .NET + C# + WinForms";
         MinimumSize = new Size(1240, 780);
         WindowState = FormWindowState.Maximized;
         StartPosition = FormStartPosition.CenterScreen;
@@ -112,7 +112,7 @@ public sealed class MainForm : Form
         var sidebar = new Panel { Dock = DockStyle.Left, Width = 236, BackColor = Navy, Padding = new Padding(0, 18, 0, 0) };
         var brand = new Label
         {
-            Text = "  FIREGUARD360\n  LEGACY COMMAND",
+            Text = "  FIREGUARD\n  DESKTOP APP",
             Dock = DockStyle.Top,
             Height = 76,
             ForeColor = Color.White,
